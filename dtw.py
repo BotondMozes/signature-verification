@@ -1,11 +1,13 @@
+import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-PATH = "~/WorkSpace/Signature Verification/data/MCYT/"
 
+def dtw(filename1, filename2, dimension):
+    df1 = pd.read_csv(filename1)
+    df2 = pd.read_csv(filename2)
 
-def dtw(df1, df2, dimension):
     n, m = len(df1[df1.columns[0]]), len(df2[df2.columns[0]])
 
     dtw_matrix = np.zeros((n+1, m+1))
@@ -30,7 +32,7 @@ def dtw(df1, df2, dimension):
 
 
 def plot_signature(filename):
-    df = pd.read_csv(PATH+filename)
+    df = pd.read_csv(filename)
 
     # PLOTTING
     plt.plot(df[df.columns[0]], df[df.columns[1]])
@@ -38,16 +40,15 @@ def plot_signature(filename):
 
 
 def main():
+    PATH = "./WorkSpace/Signature Verification/data/MCYT/"
+    FOLDER = "0000/"
 
-    file1 = "0000/0000f00c.csv"
-    file2 = "0000/0000f05c.csv"
+    signature_list = os.listdir(PATH+FOLDER)
 
-    df1 = pd.read_csv(PATH+file1)
-    df2 = pd.read_csv(PATH+file2)
-
-    plot_signature(file1)
-
-    print(dtw(df1, df2, 2))
+    for file1 in signature_list:
+        for file2 in signature_list:
+            print(file1 + "\t" + file2 + "\t" +
+                  str(dtw(PATH+FOLDER+file1, PATH+FOLDER+file2, 5)))
 
 
 main()
