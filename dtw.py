@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
+PATH = "~/WorkSpace/Signature Verification/data/MCYT/"
+
 
 def dtw(df1, df2, dimension):
     n, m = len(df1[df1.columns[0]]), len(df2[df2.columns[0]])
@@ -27,8 +29,15 @@ def dtw(df1, df2, dimension):
     return dtw_matrix[n, m]/(n+m)
 
 
+def plot_signature(filename):
+    df = pd.read_csv(PATH+filename)
+
+    # PLOTTING
+    plt.plot(df[df.columns[0]], df[df.columns[1]])
+    plt.show()
+
+
 def main():
-    PATH = "~/WorkSpace/Signature Verification/data/MCYT/"
 
     file1 = "0000/0000f00c.csv"
     file2 = "0000/0000f05c.csv"
@@ -36,13 +45,7 @@ def main():
     df1 = pd.read_csv(PATH+file1)
     df2 = pd.read_csv(PATH+file2)
 
-    # PLOTTING
-    plt.figure(1)
-    plt.subplot(211)
-    plt.plot(df1[df1.columns[0]], df1[df1.columns[1]])
-    plt.subplot(212)
-    plt.plot(df2[df2.columns[0]], df2[df2.columns[1]])
-    plt.show()
+    plot_signature(file1)
 
     print(dtw(df1, df2, 2))
 
