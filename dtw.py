@@ -1,5 +1,6 @@
 import os
 import time
+import csv
 
 import pandas as pd
 import numpy as np
@@ -73,10 +74,10 @@ def plot_signature(filename):
 
 
 def main():
-    start_seconds = time.time()
-
     PATH = "/home/mozesbotond/WorkSpace/Signature Verification/data/MCYT/"
     FOLDER = "0000/"
+
+    OUTPUT = "/home/mozesbotond/WorkSpace/Signature Verification/output.csv"
 
     signature_list = os.listdir(PATH+FOLDER)
     signature_list.sort()
@@ -89,20 +90,28 @@ def main():
     # print("dtw: ", dtw(PATH+FOLDER+file1, PATH+FOLDER+file2, 5))
     # print("fast dtw: ", fast_dtw(PATH+FOLDER+file1, PATH+FOLDER+file2))
 
+    result = [["file1", "file2", "distance"]]
+
     pool = mp.Pool(mp.cpu_count())
+
+    start_seconds = time.time()
 
     for file1 in signature_list:
         for file2 in signature_list:
             if file1 != file2:
                 # result = [pool.apply(dtw, args=(
                 #     PATH+FOLDER+file1, PATH+FOLDER+file2, 5))]
-                print(file1 + " \t " + file2 + " \t " + str(pool.apply(fast_dtw, args=(
-                    PATH+FOLDER+file1, PATH+FOLDER+file2))))
-
-    pool.close()
+                result.append([file1, file2, pool.apply(fast_dtw, args=(
+                    PATH+FOLDER+file1, PATH+FOLDER+file2))])
 
     end_seconds = time.time()
     print("Elapsed time: ", end_seconds-start_seconds)
+
+    pool.close()
+
+    with open(OUTPUT, 'w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerows(result)
 
 
 main()
