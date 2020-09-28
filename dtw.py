@@ -62,7 +62,13 @@ def fast_dtw(filename1, filename2):
 
     distance, path = fastdtw(df1, df2, dist=euclidean)
 
-    return distance/(n+m)
+    file1 = filename1.split("/")
+    file1 = file1[len(file1)-1]
+
+    file2 = filename2.split("/")
+    file2 = file2[len(file2)-1]
+
+    return (file1, file2, distance/(n+m))
 
 
 def plot_signature(filename):
@@ -73,7 +79,12 @@ def plot_signature(filename):
     plt.show()
 
 
-def main():
+def get_result(result):
+    global results
+    results.append(result)
+
+
+if __name__ == '__main__':
     PATH = "/home/mozesbotond/WorkSpace/Signature Verification/data/MCYT/"
     FOLDER = "0000/"
 
@@ -84,13 +95,7 @@ def main():
 
     print("Number of processors:", mp.cpu_count())
 
-    # file1 = signature_list[0]
-    # file2 = signature_list[1]
-
-    # print("dtw: ", dtw(PATH+FOLDER+file1, PATH+FOLDER+file2, 5))
-    # print("fast dtw: ", fast_dtw(PATH+FOLDER+file1, PATH+FOLDER+file2))
-
-    result = [["file1", "file2", "distance"]]
+    results = [["file1", "file2", "distance"]]
 
     pool = mp.Pool(mp.cpu_count())
 
@@ -99,19 +104,15 @@ def main():
     for file1 in signature_list:
         for file2 in signature_list:
             if file1 != file2:
-                # result = [pool.apply(dtw, args=(
-                #     PATH+FOLDER+file1, PATH+FOLDER+file2, 5))]
-                result.append([file1, file2, pool.apply(fast_dtw, args=(
-                    PATH+FOLDER+file1, PATH+FOLDER+file2))])
-
-    end_seconds = time.time()
-    print("Elapsed time: ", end_seconds-start_seconds)
+                pool.apply_async(fast_dtw, args=(
+                    PATH+FOLDER+file1, PATH+FOLDER+file2), callback=get_result)
 
     pool.close()
+    pool.join()
 
     with open(OUTPUT, 'w', newline='') as file:
         writer = csv.writer(file)
-        writer.writerows(result)
+        writer.writerows(results)
 
-
-main()
+    end_seconds = time.time()
+    print("Elapsed time: ", end_seconds-start_seconds)
