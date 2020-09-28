@@ -49,6 +49,15 @@ def dtw(filename1, filename2, dimension):
     return file1 + "\t" + file2 + "\t" + str(dtw_matrix[n, m]/(n+m))
 
 
+def speed(data):
+    result = [[0]]
+
+    for i in range(1, len(data)):
+        result.append([data[i] - data[i-1]])
+
+    return result
+
+
 def fast_dtw(filename1, filename2):
     df1 = pd.read_csv(filename1)
     df2 = pd.read_csv(filename2)
@@ -59,6 +68,12 @@ def fast_dtw(filename1, filename2):
 
     df1 = scaler.fit_transform(df1)
     df2 = scaler.fit_transform(df2)
+
+    for i in range(0, len(df1[0])):
+        df1 = np.append(df1, speed(df1[:, i]), axis=1)
+
+    for i in range(0, len(df2[0])):
+        df2 = np.append(df2, speed(df2[:, i]), axis=1)
 
     distance, path = fastdtw(df1, df2, dist=euclidean)
 
@@ -93,6 +108,9 @@ if __name__ == '__main__':
     signature_list = os.listdir(PATH+FOLDER)
     signature_list.sort()
 
+    # file1 = "0000f00c.csv"
+    # file2 = "0000f01c.csv"
+
     print("Number of processors:", mp.cpu_count())
 
     results = [["file1", "file2", "distance"]]
@@ -100,6 +118,8 @@ if __name__ == '__main__':
     pool = mp.Pool(mp.cpu_count())
 
     start_seconds = time.time()
+
+    # fast_dtw(PATH+FOLDER+file1, PATH+FOLDER+file2)
 
     for file1 in signature_list:
         for file2 in signature_list:
