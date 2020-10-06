@@ -49,31 +49,37 @@ def dtw(filename1, filename2, dimension):
     return file1 + "\t" + file2 + "\t" + str(dtw_matrix[n, m]/(n+m))
 
 
-def speed(data):
-    result = [[0]]
+def listdirs(folder):
+    return [d for d in os.listdir(folder) if os.path.isdir(os.path.join(folder, d))]
 
-    for i in range(1, len(data)):
-        result.append([data[i] - data[i-1]])
 
-    return result
+def speed(df):
+    result = df.diff()
+    result.columns = ["X1", "Y1", "P1"]
+    result["X1"][0] = 0
+    result["Y1"][0] = 0
+    result["P1"][0] = 0
+
+    df['X1'] = result["X1"]
+    df['Y1'] = result["Y1"]
+    df['P1'] = result["P1"]
+
+    return df
 
 
 def fast_dtw(filename1, filename2):
-    df1 = pd.read_csv(filename1)
-    df2 = pd.read_csv(filename2)
+    df1 = pd.read_csv(filename1, usecols=[0, 1, 2])
+    df2 = pd.read_csv(filename2, usecols=[0, 1, 2])
 
     n, m = len(df1[df1.columns[0]]), len(df2[df2.columns[0]])
+
+    df1 = speed(df1)
+    df2 = speed(df2)
 
     scaler = MinMaxScaler()
 
     df1 = scaler.fit_transform(df1)
     df2 = scaler.fit_transform(df2)
-
-    for i in range(0, len(df1[0])):
-        df1 = np.append(df1, speed(df1[:, i]), axis=1)
-
-    for i in range(0, len(df2[0])):
-        df2 = np.append(df2, speed(df2[:, i]), axis=1)
 
     distance, path = fastdtw(df1, df2, dist=euclidean)
 
@@ -103,36 +109,41 @@ if __name__ == '__main__':
     PATH = "/home/mozesbotond/WorkSpace/Signature Verification/data/MCYT/"
     FOLDER = "0000/"
 
-    OUTPUT = "/home/mozesbotond/WorkSpace/Signature Verification/output.csv"
+    OUTPUT_FOLDER = "/home/mozesbotond/WorkSpace/Signature Verification/output2/"
 
-    signature_list = os.listdir(PATH+FOLDER)
-    signature_list.sort()
+    folder_list = listdirs(PATH)
+    folder_list.sort()
 
     # file1 = "0000f00c.csv"
     # file2 = "0000f01c.csv"
 
     print("Number of processors:", mp.cpu_count())
 
-    results = [["file1", "file2", "distance"]]
-
-    pool = mp.Pool(mp.cpu_count())
-
     start_seconds = time.time()
 
     # fast_dtw(PATH+FOLDER+file1, PATH+FOLDER+file2)
+    for folder in folder_list:
+        results = [["file1", "file2", "distance"]]
 
-    for file1 in signature_list:
-        for file2 in signature_list:
-            if file1 != file2:
-                pool.apply_async(fast_dtw, args=(
-                    PATH+FOLDER+file1, PATH+FOLDER+file2), callback=get_result)
+        signature_list = os.listdir(PATH + "/" + folder)
+        signature_list.sort()
 
-    pool.close()
-    pool.join()
+        if len(signature_list) != 0:
+            print(folder)
+            pool = mp.Pool(mp.cpu_count())
+            for file1 in signature_list:
+                for file2 in signature_list:
+                    if file1 != file2:
+                        pool.apply_async(fast_dtw, args=(
+                            PATH+folder+"/"+file1, PATH+folder+"/"+file2), callback=get_result)
 
-    with open(OUTPUT, 'w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerows(results)
+            pool.close()
+            pool.join()
+
+            output = OUTPUT_FOLDER + folder + ".csv"
+            with open(output, 'w', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerows(results)
 
     end_seconds = time.time()
     print("Elapsed time: ", end_seconds-start_seconds)
