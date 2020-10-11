@@ -1,6 +1,7 @@
 import os
 import time
 import csv
+import settings
 
 import pandas as pd
 import numpy as np
@@ -68,8 +69,8 @@ def speed(df):
 
 
 def fast_dtw(filename1, filename2):
-    df1 = pd.read_csv(filename1, usecols=[0, 1, 2])
-    df2 = pd.read_csv(filename2, usecols=[0, 1, 2])
+    df1 = pd.read_csv(filename1, usecols=settings.FIELDS)
+    df2 = pd.read_csv(filename2, usecols=settings.FIELDS)
 
     n, m = len(df1[df1.columns[0]]), len(df2[df2.columns[0]])
 
@@ -106,16 +107,8 @@ def get_result(result):
 
 
 if __name__ == '__main__':
-    PATH = "/home/mozesbotond/WorkSpace/Signature Verification/data/MCYT/"
-    FOLDER = "0000/"
-
-    OUTPUT_FOLDER = "/home/mozesbotond/WorkSpace/Signature Verification/output2/"
-
-    folder_list = listdirs(PATH)
+    folder_list = listdirs(settings.INPUT)
     folder_list.sort()
-
-    # file1 = "0000f00c.csv"
-    # file2 = "0000f01c.csv"
 
     print("Number of processors:", mp.cpu_count())
 
@@ -125,7 +118,7 @@ if __name__ == '__main__':
     for folder in folder_list:
         results = [["file1", "file2", "distance"]]
 
-        signature_list = os.listdir(PATH + "/" + folder)
+        signature_list = os.listdir(settings.INPUT + "/" + folder)
         signature_list.sort()
 
         if len(signature_list) != 0:
@@ -135,12 +128,12 @@ if __name__ == '__main__':
                 for file2 in signature_list:
                     if file1 != file2:
                         pool.apply_async(fast_dtw, args=(
-                            PATH+folder+"/"+file1, PATH+folder+"/"+file2), callback=get_result)
+                            settings.INPUT+folder+"/"+file1, settings.INPUT+folder+"/"+file2), callback=get_result)
 
             pool.close()
             pool.join()
 
-            output = OUTPUT_FOLDER + folder + ".csv"
+            output = settings.OUTPUT + folder + ".csv"
             with open(output, 'w', newline='') as file:
                 writer = csv.writer(file)
                 writer.writerows(results)
