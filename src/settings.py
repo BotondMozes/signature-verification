@@ -11,6 +11,8 @@ MOBISIG_OUTPUT = "/home/mozesbotond/WorkSpace/Signature Verification/output/MOBI
 MCYT_INTERP = "/home/mozesbotond/WorkSpace/Signature Verification/output/MCYT/interpolated/"
 MOBISIG_INTERP = "/home/mozesbotond/WorkSpace/Signature Verification/output/MOBISIG/interpolated/"
 
+FINAL_OUTPUT = "/home/mozesbotond/WorkSpace/Signature Verification/output/FINAL/"
+
 MCYT_FIELDS = [0, 1, 2]
 MOBISIG_FIELDS = [0, 1, 3]
 
