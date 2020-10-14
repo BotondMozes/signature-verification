@@ -5,9 +5,21 @@ import csv
 import pandas as pd
 import numpy as np
 
+from sklearn.preprocessing import MinMaxScaler
+
 
 def listdirs(folder):
     return [d for d in os.listdir(folder) if os.path.isdir(os.path.join(folder, d))]
+
+
+def speed(df):
+    result = df.diff()
+    result.columns = ["x1", "y1", "p1"]
+    result["x1"][0] = 0
+    result["y1"][0] = 0
+    result["p1"][0] = 0
+
+    return result
 
 
 def resample_mcyt():
@@ -21,11 +33,18 @@ def resample_mcyt():
 
         if len(signature_list) != 0:
             for file1 in signature_list:
-                df = pd.read_csv(settings.MCYT_INTERP + folder + "/" + file1)
+                df = pd.read_csv(settings.MCYT_INTERP +
+                                 folder + "/" + file1, usecols=[1, 2, 3])
+
+                df = speed(df)
+                scaler = MinMaxScaler()
+
+                df = scaler.fit_transform(df)
+
                 res = []
-                res = np.append(res, df.x.values)
-                res = np.append(res, df.y.values)
-                res = np.append(res, df.p.values)
+                res = np.append(res, df[:, 0])
+                res = np.append(res, df[:, 1])
+                res = np.append(res, df[:, 2])
                 res = res.tolist()
                 res.append(folder)
 
@@ -55,11 +74,17 @@ def resample_mobisig():
         if len(signature_list) != 0:
             for file1 in signature_list:
                 df = pd.read_csv(settings.MOBISIG_INTERP +
-                                 folder + "/" + file1)
+                                 folder + "/" + file1, usecols=[1, 2, 3])
+
+                df = speed(df)
+                scaler = MinMaxScaler()
+
+                df = scaler.fit_transform(df)
+
                 res = []
-                res = np.append(res, df.x.values)
-                res = np.append(res, df.y.values)
-                res = np.append(res, df.p.values)
+                res = np.append(res, df[:, 0])
+                res = np.append(res, df[:, 1])
+                res = np.append(res, df[:, 2])
                 res = res.tolist()
                 res.append(folder)
 
