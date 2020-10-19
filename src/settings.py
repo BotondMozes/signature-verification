@@ -13,6 +13,9 @@ MOBISIG_INTERP = "/home/mozesbotond/WorkSpace/Signature Verification/output/MOBI
 
 FINAL_OUTPUT = "/home/mozesbotond/WorkSpace/Signature Verification/output/FINAL/"
 
+MCYT_GENUINE = FINAL_OUTPUT + "mcyt_genuine.csv"
+MCYT_FORGERY = FINAL_OUTPUT + "mcyt_forgery.csv"
+
 MCYT_FIELDS = [0, 1, 2]
 MOBISIG_FIELDS = [0, 1, 3]
 
