@@ -1,5 +1,4 @@
 import settings
-import os
 
 import pandas as pd
 import numpy as np
@@ -8,13 +7,9 @@ import matplotlib.pyplot as plt
 from scipy import interpolate
 
 
-def listdirs(folder):
-    return [d for d in os.listdir(folder) if os.path.isdir(os.path.join(folder, d))]
-
-
-def interpolate_mcyt_file(inputfile, outputfile):
+def interpolate_mcyt_file(df):
     # print(outputfile)
-    df = pd.read_csv(inputfile, usecols=settings.MCYT_FIELDS)
+    # df = pd.read_csv(inputfile, usecols=settings.MCYT_FIELDS)
 
     x = df['X']
     y = df[' Y']
@@ -34,17 +29,17 @@ def interpolate_mcyt_file(inputfile, outputfile):
     ynew = fy(tnew)   # use interpolation function returned by `interp1d`
     pnew = fp(tnew)
 
-    d = {'t': tnew, 'x': xnew, 'y': ynew, 'p': pnew}
+    d = {'x': xnew, 'y': ynew, 'p': pnew}
     df = pd.DataFrame(data=d)
-    df.to_csv(outputfile, index=False)
+    # df.to_csv(outputfile, index=False)
     # plt.plot(xnew, 1000-ynew)
     # plt.show()
-    return
+    return df
 
 
-def interpolate_mobisig_file(inputfile, outputfile):
+def interpolate_mobisig_file(df):
     # print(inputfile)
-    df = pd.read_csv(inputfile, usecols=[0, 1, 2, 3])
+    # df = pd.read_csv(inputfile, usecols=[0, 1, 2, 3])
 
     x = df['x']
     y = df['y']
@@ -66,12 +61,12 @@ def interpolate_mobisig_file(inputfile, outputfile):
     ynew = fy(tnew)   # use interpolation function returned by `interp1d`
     pnew = fp(tnew)
 
-    d = {'t': tnew, 'x': xnew, 'y': ynew, 'p': pnew}
+    d = {'x': xnew, 'y': ynew, 'p': pnew}
     df = pd.DataFrame(data=d)
-    df.to_csv(outputfile, index=False)
+    # df.to_csv(outputfile, index=False)
     # plt.plot(xnew, 1000-ynew)
     # plt.show()
-    return
+    return df
 
 
 def interpolate_all():
@@ -98,7 +93,3 @@ def interpolate_all():
             for file1 in signature_list:
                 interpolate_mobisig_file(
                     settings.MOBISIG_DATA+folder+"/"+file1, settings.MOBISIG_INTERP+folder+"/"+file1)
-
-
-if __name__ == '__main__':
-    interpolate_all()

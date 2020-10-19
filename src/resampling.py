@@ -1,15 +1,13 @@
 import settings
 import os
 import csv
+import interpolate
+import utils
 
 import pandas as pd
 import numpy as np
 
 from sklearn.preprocessing import MinMaxScaler
-
-
-def listdirs(folder):
-    return [d for d in os.listdir(folder) if os.path.isdir(os.path.join(folder, d))]
 
 
 def speed(df):
@@ -26,21 +24,28 @@ def resample_mcyt():
     genuine_result = []
     forgery_result = []
 
-    folder_list = listdirs(settings.MCYT_INTERP)
+    folder_list = utils.listdirs(settings.MCYT_DATA)
 
     for folder in folder_list:
-        signature_list = os.listdir(settings.MCYT_INTERP + folder)
+        signature_list = os.listdir(settings.MCYT_DATA + folder)
 
         if len(signature_list) != 0:
             for file1 in signature_list:
-                df = pd.read_csv(settings.MCYT_INTERP +
-                                 folder + "/" + file1, usecols=[1, 2, 3])
+                df = pd.read_csv(settings.MCYT_DATA +
+                                 folder + "/" + file1, usecols=settings.MCYT_FIELDS)
 
+                # interpolation
+                df = interpolate.interpolate_mcyt_file(df)
+
+                # calculating first order differences
                 df = speed(df)
+
+                # normalization
                 scaler = MinMaxScaler()
 
                 df = scaler.fit_transform(df)
 
+                # resampling
                 res = []
                 res = np.append(res, df[:, 0])
                 res = np.append(res, df[:, 1])
@@ -66,21 +71,28 @@ def resample_mobisig():
     genuine_result = []
     forgery_result = []
 
-    folder_list = listdirs(settings.MOBISIG_INTERP)
+    folder_list = utils.listdirs(settings.MOBISIG_DATA)
 
     for folder in folder_list:
-        signature_list = os.listdir(settings.MOBISIG_INTERP + folder)
+        signature_list = os.listdir(settings.MOBISIG_DATA + folder)
 
         if len(signature_list) != 0:
             for file1 in signature_list:
-                df = pd.read_csv(settings.MOBISIG_INTERP +
-                                 folder + "/" + file1, usecols=[1, 2, 3])
+                df = pd.read_csv(settings.MOBISIG_DATA +
+                                 folder + "/" + file1, usecols=settings.MOBISIG_FIELDS)
 
+                # interpolation
+                df = interpolate.interpolate_mobisig_file(df)
+
+                # calculating first order differences
                 df = speed(df)
+
+                # normalization
                 scaler = MinMaxScaler()
 
                 df = scaler.fit_transform(df)
 
+                # resampling
                 res = []
                 res = np.append(res, df[:, 0])
                 res = np.append(res, df[:, 1])
@@ -105,6 +117,3 @@ def resample_mobisig():
 def resample_all():
     resample_mcyt()
     resample_mobisig()
-
-
-resample_all()
