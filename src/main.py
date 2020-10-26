@@ -13,5 +13,5 @@ if __name__ == '__main__':
     # 10 fold cross validation
     classification.evaluate_cross_validation(df_mcyt_genuine)
 
-    # train-test score
+    # train(genuine) - test(forgery) evaluation
     classification.evaluate_train_test(df_mcyt_genuine, df_mcyt_forgery)
