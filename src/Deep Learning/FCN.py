@@ -8,6 +8,7 @@ import time
 import os
 
 from utils import calculate_metrics
+from utils import plot_training
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
@@ -48,7 +49,7 @@ class Classifier_FCN:
 
         model = keras.models.Model(inputs=input_layer, outputs=output_layer)
 
-        model.compile(loss='categorical_crossentropy', optimizer=keras.optimizers.Adam(),
+        model.compile(loss='categorical_crossentropy', optimizer=keras.optimizers.Adam(learning_rate=0.00001),
                       metrics=['accuracy'])
 
         reduce_lr = keras.callbacks.ReduceLROnPlateau(monitor='loss', factor=0.5, patience=50,
@@ -66,7 +67,7 @@ class Classifier_FCN:
     def fit(self, x_train, y_train, x_val, y_val, y_true):
         # x_val and y_val are only used to monitor the test loss and NOT for training
         batch_size = 16
-        nb_epochs = 2000
+        nb_epochs = 200
 
         mini_batch_size = int(min(x_train.shape[0]/10, batch_size))
 
@@ -74,6 +75,8 @@ class Classifier_FCN:
 
         hist = self.model.fit(x_train, y_train, batch_size=mini_batch_size, epochs=nb_epochs,
                               verbose=self.verbose, validation_data=(x_val, y_val), callbacks=self.callbacks)
+
+        plot_training(hist)
 
         duration = time.time() - start_time
 

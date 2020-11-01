@@ -1,10 +1,14 @@
+import dl_settings as stt
+
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import precision_score
 from sklearn.metrics import recall_score
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import OneHotEncoder
 
 
 def calculate_metrics(y_true, y_pred, duration, y_true_val=None, y_pred_val=None):
@@ -23,12 +27,38 @@ def calculate_metrics(y_true, y_pred, duration, y_true_val=None, y_pred_val=None
 
 
 def split_data(df):
-    train, test = train_test_split(df, test_size=0.2)
+    array = df.values
 
-    x_train = train.iloc[:, 0:1536]
-    y_train = train.iloc[:, -1:]
+    nsamples, nfeatures = array.shape
 
-    x_test = test.iloc[:, 0:1536]
-    y_test = test.iloc[:, -1:]
+    nfeatures = nfeatures - 1
 
-    return x_train, y_train, x_test, y_test
+    X = array[:, 0:nfeatures]
+    y = array[:, -1]
+
+    X = X.reshape(-1, stt.FEATURES, stt.DIMENSIONS)
+
+    enc = OneHotEncoder()
+    enc.fit(y.reshape(-1, 1))
+    y = enc.transform(y.reshape(-1, 1)).toarray()
+
+    # train, test = train_test_split(df, test_size=0.2)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=stt.RANDOM_STATE)
+
+    # X_train, X_val, y_train, y_val = train_test_split(
+    #     X_train, y_train, test_size=0.25, random_state=stt.RANDOM_STATE)
+    return X_train, y_train, X_test, y_test
+
+
+def plot_training(history):
+    # list all data in history
+    print(history.history.keys())
+    # summarize history for accuracy
+    plt.plot(history.history['accuracy'])
+    plt.plot(history.history['val_accuracy'])
+    plt.title('model accuracy')
+    plt.ylabel('accuracy')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.show()
