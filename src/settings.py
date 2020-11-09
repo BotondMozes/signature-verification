@@ -1,5 +1,5 @@
 # variables
-MCYT_DATA = "/home/mozesbotond/WorkSpace/Signature Verification/data/MCYT/"
+MCYT_DATA = "/home/mozesbotond/WorkSpace/Signature Verification/data/MCYT2/"
 MOBISIG_DATA = "/home/mozesbotond/WorkSpace/Signature Verification/data/MOBISIG/"
 
 MCYT_STAT_DATA = "/home/mozesbotond/WorkSpace/Signature Verification/output/stat/mcyt_stat.csv"

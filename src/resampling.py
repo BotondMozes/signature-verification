@@ -6,6 +6,7 @@ import utils
 
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 
 from sklearn.preprocessing import MinMaxScaler
 
@@ -41,9 +42,10 @@ def resample_mcyt():
                 df = speed(df)
 
                 # normalization
-                scaler = MinMaxScaler()
-
-                df = scaler.fit_transform(df)
+                # scaler = MinMaxScaler()
+                df = speed(df)
+                df = df.values
+                # df = scaler.fit_transform(df)
 
                 # resampling
                 res = []
@@ -86,11 +88,11 @@ def resample_mobisig():
 
                 # calculating first order differences
                 df = speed(df)
-
+                df = df.values
                 # normalization
-                scaler = MinMaxScaler()
+                # scaler = MinMaxScaler()
 
-                df = scaler.fit_transform(df)
+                # df = scaler.fit_transform(df)
 
                 # resampling
                 res = []
